@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>ক্যাশ বুক - এডিট/ডিলিট ও মোবাইল রেস্পন্সিভ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #eef2ff;
+      padding: 12px;
+      min-height: 100vh;
+    }
+
+    /* main container */
+    .app-container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    /* headers */
+    .header {
+      background: #0f172a;
+      color: white;
+      padding: 1rem 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .header h1, .header h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+    .header h2 {
+      font-size: 1.1rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-weight: 500;
+      transition: 0.2s;
+      touch-action: manipulation;
+    }
+    .btn-outline {
+      background: #334155;
+      padding: 6px 14px;
+      border-radius: 40px;
+      color: white;
+      font-size: 0.8rem;
+    }
+    .btn-outline.danger {
+      background: #b91c1c;
+    }
+    .btn-outline.warning {
+      background: #d97706;
+    }
+    .content {
+      padding: 1.2rem;
+    }
+
+    /* accounts grid */
+    .accounts-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .account-card {
+      background: #f8fafc;
+      border-radius: 24px;
+      padding: 0.9rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #e2e8f0;
+    }
+    .account-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .card-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .icon-btn {
+      background: #eef2ff;
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+    }
+    .add-account {
+      background: #0f172a;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      margin-top: 8px;
+      width: 100%;
+    }
+
+    /* date slider (touch scroll) */
+    .date-slider-area {
+      margin-bottom: 20px;
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .date-slider {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      padding: 6px 2px 14px;
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+    }
+    .date-chip {
+      background: #f1f5f9;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .date-chip.active {
+      background: #0f172a;
+      color: white;
+    }
+
+    /* summary bar - responsive grid */
+    .summary-bar {
+      background: #eef2ff;
+      border-radius: 20px;
+      padding: 14px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
+      border-left: 4px solid #3b82f6;
+    }
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .summary-value {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    /* form responsive */
+    .entry-form {
+      background: white;
+      border-radius: 24px;
+      border: 1px solid #e2e8f0;
+      padding: 1rem;
+    }
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .input-group {
+      flex: 1 1 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .input-group label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #475569;
+    }
+    .input-group input {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 18px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+    input[readonly] {
+      background: #eef2ff;
+      font-weight: 600;
+    }
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .save-btn {
+      background: #10b981;
+      color: white;
+      padding: 12px;
+      border-radius: 40px;
+      font-weight: bold;
+      flex: 2;
+    }
+    .delete-entry-btn {
+      background: #b91c1c;
+      color: white;
+      padding: 12px;
+      border-radius: 40px;
+      font-weight: bold;
+      flex: 1;
+    }
+    .empty-message {
+      text-align: center;
+      padding: 28px;
+      color: #64748b;
+    }
+    .error-msg {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 8px;
+      border-radius: 60px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    /* auth screens */
+    .auth-card {
+      padding: 20px;
+    }
+    .auth-card input {
+      width: 100%;
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 60px;
+      border: 1px solid #cbd5e1;
+    }
+    .auth-toggle {
+      text-align: center;
+      color: #3b82f6;
+      margin-top: 16px;
+      font-weight: 500;
+    }
+    @media (max-width: 500px) {
+      .summary-bar {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .button-group {
+        flex-direction: column;
+      }
+      .header h2 {
+        max-width: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container" id="appRoot"></div>
+
+<script>
+  // ---------- STORAGE ----------
+  const USERS_KEY = "cashbook_users_v2";
+
+  let loggedInUser = null;
+  let accounts = [];
+  let currentAccount = null;
+  let currentDate = null;      // YYYY-MM-DD
+  let currentAccountDates = [];
+
+  const root = document.getElementById("appRoot");
+
+  // ========== HELPERS ==========
+  function getTodayString() {
+    return new Date().toISOString().split('T')[0];
+  }
+  function getNextDay(dateStr) {
+    let d = new Date(dateStr);
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+  }
+  function formatDateReadable(dateStr) {
+    let d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short' });
+  }
+
+  function loadAccounts() {
+    if (!loggedInUser) return [];
+    const stored = localStorage.getItem(`cashbook_accounts_${loggedInUser}`);
+    if (stored) accounts = JSON.parse(stored);
+    else accounts = [];
+    return accounts;
+  }
+  function saveAccounts() {
+    if (loggedInUser) localStorage.setItem(`cashbook_accounts_${loggedInUser}`, JSON.stringify(accounts));
+  }
+  function updateAccountInArray(updated) {
+    const idx = accounts.findIndex(a => a.id === updated.id);
+    if (idx !== -1) accounts[idx] = updated;
+    else accounts.push(updated);
+    saveAccounts();
+  }
+
+  // get previous day's last balance for carry forward
+  function getPrevDayLastBalance(account, dateStr) {
+    const dates = Object.keys(account.data).sort();
+    let prevDate = null;
+    for (let i = dates.length-1; i >= 0; i--) {
+      if (dates[i] < dateStr) { prevDate = dates[i]; break; }
+    }
+    if (prevDate && account.data[prevDate]?.last !== undefined) return account.data[prevDate].last;
+    return 0;
+  }
+
+  function computeLast(yb, b2b, cash, income, out) {
+    return ( (yb||0) + (b2b||0) + (cash||0) + (income||0) ) - (out||0);
+  }
+
+  function ensureData(acc) {
+    if (!acc.data) acc.data = {};
+    return acc;
+  }
+
+  // delete entry for a specific date
+  function deleteEntryForDate(account, dateStr) {
+    if (!account.data[dateStr]) return false;
+    delete account.data[dateStr];
+    // after deletion, we need to adjust future dates' yesterday balance? (optional carry forward re-calc)
+    // to keep logic simple, when user revisits next dates, they will see yb = previous existing last.
+    // but we also need to fix later dates if they exist? For simplicity, we just delete.
+    // However, when a user deletes a middle date, the next date's yb will be based on previous date's last (which may change)
+    // We'll implement a full re-calc of all affected future dates? Not required for MVP, but better UX: after delete, we can recompute carry for subsequent dates.
+    // Let's do a "recalc forward" function to be safe.
+    recalcCarryForward(account, dateStr);
+    updateAccountInArray(account);
+    return true;
+  }
+
+  // after deletion, re-calc yesterday balance for all dates after deleted date
+  function recalcCarryForward(account, fromDate) {
+    let allDates = Object.keys(account.data).sort();
+    let prevLast = 0;
+    // find last balance before fromDate
+    for (let i = 0; i < allDates.length; i++) {
+      const d = allDates[i];
+      if (d < fromDate) {
+        if (account.data[d] && typeof account.data[d].last === 'number') prevLast = account.data[d].last;
+      } else {
+        // update yb = prevLast, then recompute last
+        const entry = account.data[d];
+        if (entry) {
+          entry.yb = prevLast;
+          const newLast = computeLast(entry.yb, entry.b2b || 0, entry.cash || 0, entry.income || 0, entry.out || 0);
+          entry.last = newLast;
+          prevLast = newLast;
+        }
+      }
+    }
+  }
+
+  // create empty entry with auto carry (yb from previous day)
+  function createEmptyEntryWithCarry(account, dateStr) {
+    const prevLast = getPrevDayLastBalance(account, dateStr);
+    return { yb: prevLast, b2b: 0, cash: 0, income: 0, out: 0, last: prevLast };
+  }
+
+  // ========== AUTH ==========
+  function renderAuth() {
+    let mode = "login";
+    function getHtml() {
+      return `
+        <div class="header"><h1>💰 ক্যাশ বুক</h1><div></div></div>
+        <div class="content auth-card">
+          <div id="authFormContainer">
+            ${mode === 'login' ? `
+              <h3>লগইন</h3>
+              <input type="text" id="loginUsername" placeholder="ইউজারনেম">
+              <input type="password" id="loginPassword" placeholder="পাসওয়ার্ড">
+              <button id="doLoginBtn" class="save-btn" style="background:#0f172a;">প্রবেশ</button>
+              <div class="auth-toggle" id="switchToRegister">নতুন ইউজার? রেজিস্ট্রার</div>
+            ` : `
+              <h3>রেজিস্ট্রার</h3>
+              <input type="text" id="regUsername" placeholder="ইউজারনেম">
+              <input type="password" id="regPassword" placeholder="পাসওয়ার্ড">
+              <button id="doRegisterBtn" class="save-btn" style="background:#0f172a;">রেজিস্ট্রার</button>
+              <div class="auth-toggle" id="switchToLogin">← লগইনে ফিরুন</div>
+            `}
+          </div>
+          <div id="authError" class="error-msg" style="display:none;"></div>
+        </div>
+      `;
+    }
+    function showErr(msg) {
+      let errDiv = document.getElementById("authError");
+      if (errDiv) { errDiv.innerText = msg; errDiv.style.display = "block"; setTimeout(() => errDiv.style.display = "none", 2000); }
+    }
+    function handleLogin() {
+      const uname = document.getElementById("loginUsername")?.value.trim();
+      const pwd = document.getElementById("loginPassword")?.value;
+      if (!uname || !pwd) return showErr("ইউজারনেম ও পাসওয়ার্ড দিন");
+      const users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+      const found = users.find(u => u.username === uname && u.password === pwd);
+      if (!found) return showErr("ভুল তথ্য");
+      loggedInUser = uname;
+      loadAccounts();
+      renderHome();
+    }
+    function handleRegister() {
+      const uname = document.getElementById("regUsername")?.value.trim();
+      const pwd = document.getElementById("regPassword")?.value;
+      if (!uname || !pwd) return showErr("সব ঘর পূরণ করুন");
+      let users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+      if (users.find(u => u.username === uname)) return showErr("ইউজারনেম নেওয়া আছে");
+      users.push({ username: uname, password: pwd });
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+      localStorage.setItem(`cashbook_accounts_${uname}`, JSON.stringify([]));
+      loggedInUser = uname;
+      accounts = [];
+      renderHome();
+    }
+    function render() {
+      root.innerHTML = getHtml();
+      if (mode === 'login') {
+        document.getElementById("doLoginBtn")?.addEventListener("click", handleLogin);
+        document.getElementById("switchToRegister")?.addEventListener("click", () => { mode = "register"; render(); });
+      } else {
+        document.getElementById("doRegisterBtn")?.addEventListener("click", handleRegister);
+        document.getElementById("switchToLogin")?.addEventListener("click", () => { mode = "login"; render(); });
+      }
+    }
+    render();
+  }
+
+  // ========== HOME (ACCOUNTS LIST) ==========
+  function renderHome() {
+    if (!loggedInUser) return renderAuth();
+    loadAccounts();
+    const html = `
+      <div class="header">
+        <h1>📒 আমার হিসাব</h1>
+        <button class="btn-outline" id="logoutHomeBtn">লগআউট</button>
+      </div>
+      <div class="content">
+        <button class="add-account" id="addAccountBtn">➕ নতুন অ্যাকাউন্ট</button>
+        <div id="accountsList" class="accounts-grid">
+          ${accounts.length === 0 ? '<div class="empty-message">কোনো অ্যাকাউন্ট নেই। "নতুন অ্যাকাউন্ট" চাপুন</div>' : ''}
+          ${accounts.map(acc => `
+            <div class="account-card">
+              <span class="account-name">📌 ${escapeHtml(acc.name)}</span>
+              <div class="card-actions">
+                <button class="icon-btn" data-action="open" data-id="${acc.id}">খুলুন</button>
+                <button class="icon-btn" data-action="deleteAcc" data-id="${acc.id}">🗑️ মুছুন</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    root.innerHTML = html;
+    document.getElementById("logoutHomeBtn")?.addEventListener("click", () => { loggedInUser = null; renderAuth(); });
+    document.getElementById("addAccountBtn")?.addEventListener("click", () => {
+      let name = prompt("অ্যাকাউন্টের নাম দিন", "ব্যবসা");
+      if (name && name.trim()) {
+        const newId = Date.now() + "" + Math.floor(Math.random()*9999);
+        accounts.push({ id: newId, name: name.trim(), data: {} });
+        saveAccounts();
+        renderHome();
+      }
+    });
+    document.querySelectorAll("[data-action='open']").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const id = btn.getAttribute("data-id");
+        const acc = accounts.find(a => a.id === id);
+        if (acc) { currentAccount = acc; renderEntriesView(); }
+      });
+    });
+    document.querySelectorAll("[data-action='deleteAcc']").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        if(confirm("অ্যাকাউন্ট মুছবেন? সব লেনদেন যাবে")) {
+          const id = btn.getAttribute("data-id");
+          accounts = accounts.filter(a => a.id !== id);
+          if(currentAccount?.id === id) currentAccount = null;
+          saveAccounts();
+          renderHome();
+        }
+      });
+    });
+  }
+
+  // ========== ENTRIES VIEW (DATE SLIDER + FORM + DELETE BUTTON) ==========
+  function renderEntriesView() {
+    if (!currentAccount) return renderHome();
+    ensureData(currentAccount);
+    let dateKeys = Object.keys(currentAccount.data).sort();
+    currentAccountDates = dateKeys;
+    if (currentAccountDates.length && (!currentDate || !currentAccount.data[currentDate])) currentDate = currentAccountDates[0];
+    else if (!currentAccountDates.length) currentDate = null;
+
+    function getCurrentEntry() {
+      if (!currentDate || !currentAccount.data[currentDate]) return null;
+      return currentAccount.data[currentDate];
+    }
+
+    function updateFormAndSummary() {
+      const entry = getCurrentEntry();
+      if (entry) {
+        document.getElementById("ybField").value = entry.yb ?? 0;
+        document.getElementById("b2bField").value = entry.b2b ?? 0;
+        document.getElementById("cashField").value = entry.cash ?? 0;
+        document.getElementById("incomeField").value = entry.income ?? 0;
+        document.getElementById("outField").value = entry.out ?? 0;
+      } else {
+        document.getElementById("ybField").value = 0;
+        document.getElementById("b2bField").value = 0;
+        document.getElementById("cashField").value = 0;
+        document.getElementById("incomeField").value = 0;
+        document.getElementById("outField").value = 0;
+      }
+      updateSummaryFromFields();
+    }
+
+    function updateSummaryFromFields() {
+      const yb = parseFloat(document.getElementById("ybField")?.value) || 0;
+      const b2b = parseFloat(document.getElementById("b2bField")?.value) || 0;
+      const cash = parseFloat(document.getElementById("cashField")?.value) || 0;
+      const income = parseFloat(document.getElementById("incomeField")?.value) || 0;
+      const out = parseFloat(document.getElementById("outField")?.value) || 0;
+      const last = computeLast(yb, b2b, cash, income, out);
+      document.getElementById("lastField").value = last;
+      document.getElementById("summaryYb").innerText = yb.toFixed(2);
+      document.getElementById("summaryB2b").innerText = b2b.toFixed(2);
+      document.getElementById("summaryCash").innerText = cash.toFixed(2);
+      document.getElementById("summaryIncome").innerText = income.toFixed(2);
+      document.getElementById("summaryOut").innerText = out.toFixed(2);
+      document.getElementById("summaryLast").innerText = last.toFixed(2);
+    }
+
+    function saveCurrentEntry() {
+      if (!currentDate) { alert("প্রথমে একটি তারিখ সিলেক্ট করুন"); return; }
+      const yb = parseFloat(document.getElementById("ybField").value) || 0;
+      const b2b = parseFloat(document.getElementById("b2bField").value) || 0;
+      const cash = parseFloat(document.getElementById("cashField").value) || 0;
+      const income = parseFloat(document.getElementById("incomeField").value) || 0;
+      const out = parseFloat(document.getElementById("outField").value) || 0;
+      const last = computeLast(yb, b2b, cash, income, out);
+      currentAccount.data[currentDate] = { yb, b2b, cash, income, out, last };
+      // recalc forward to maintain consistency for future dates (optional but good)
+      recalcCarryForward(currentAccount, getNextDay(currentDate));
+      updateAccountInArray(currentAccount);
+      // refresh view
+      renderEntriesView();
+      setTimeout(() => {
+        const activeChip = document.querySelector(`.date-chip[data-date="${currentDate}"]`);
+        if(activeChip) activeChip.classList.add("active");
+        updateFormAndSummary();
+      }, 20);
+    }
+
+    function deleteCurrentEntry() {
+      if (!currentDate) return;
+      if (!currentAccount.data[currentDate]) return alert("এন্ট্রি নেই");
+      if (confirm("এই তারিখের এন্ট্রি স্থায়ীভাবে মুছবেন?")) {
+        deleteEntryForDate(currentAccount, currentDate);
+        // after deletion, refresh view
+        renderEntriesView();
+      }
+    }
+
+    function addNewDate() {
+      let newDate = currentAccountDates.length > 0 ? getNextDay(currentAccountDates[currentAccountDates.length-1]) : getTodayString();
+      if (currentAccount.data[newDate]) { alert("ইতিমধ্যে এই তারিখ আছে!"); return; }
+      const newEntry = createEmptyEntryWithCarry(currentAccount, newDate);
+      currentAccount.data[newDate] = newEntry;
+      recalcCarryForward(currentAccount, newDate);
+      updateAccountInArray(currentAccount);
+      renderEntriesView();
+      currentDate = newDate;
+      setTimeout(() => {
+        const chip = document.querySelector(`.date-chip[data-date="${newDate}"]`);
+        if(chip) chip.click();
+      }, 30);
+    }
+
+    const mainHtml = `
+      <div class="header">
+        <button class="btn-outline" id="backHomeBtn">← পেছনে</button>
+        <h2>${escapeHtml(currentAccount.name)}</h2>
+        <button class="btn-outline" id="logoutEntryBtn">লগআউট</button>
+      </div>
+      <div class="content">
+        <div class="date-slider-area">
+          <div class="slider-header">
+            <span>📅 তারিখ স্লাইডার</span>
+            <button class="btn-outline" id="addDateBtn">+ নতুন তারিখ</button>
+          </div>
+          <div id="sliderContainer" class="date-slider">
+            ${currentAccountDates.map(d => `<div class="date-chip ${currentDate===d ? 'active' : ''}" data-date="${d}">${formatDateReadable(d)}</div>`).join('')}
+            ${currentAccountDates.length===0 ? '<div class="empty-message">কোনো তারিখ নেই, "নতুন তারিখ" যোগ করুন</div>' : ''}
+          </div>
+        </div>
+
+        <div class="summary-bar">
+          <div class="summary-item">Yesterday<br><span class="summary-value" id="summaryYb">0</span></div>
+          <div class="summary-item">B2B<br><span class="summary-value" id="summaryB2b">0</span></div>
+          <div class="summary-item">Cash In<br><span class="summary-value" id="summaryCash">0</span></div>
+          <div class="summary-item">Income<br><span class="summary-value" id="summaryIncome">0</span></div>
+          <div class="summary-item">Out<br><span class="summary-value" id="summaryOut">0</span></div>
+          <div class="summary-item">Last Bal.<br><span class="summary-value" id="summaryLast">0</span></div>
+        </div>
+
+        <div class="entry-form">
+          <div class="form-row">
+            <div class="input-group"><label>গতকালের ব্যালেন্স</label><input type="number" id="ybField" step="any" readonly></div>
+            <div class="input-group"><label>B2B (ট্রান্সফার)</label><input type="number" id="b2bField" step="any"></div>
+            <div class="input-group"><label>ক্যাশ ইন</label><input type="number" id="cashField" step="any"></div>
+          </div>
+          <div class="form-row">
+            <div class="input-group"><label>আয় (Income)</label><input type="number" id="incomeField" step="any"></div>
+            <div class="input-group"><label>খরচ (Out)</label><input type="number" id="outField" step="any"></div>
+            <div class="input-group"><label>শেষ ব্যালেন্স</label><input type="number" id="lastField" step="any" readonly></div>
+          </div>
+          <div class="button-group">
+            <button class="save-btn" id="saveBtn">💾 সেভ করুন</button>
+            <button class="delete-entry-btn" id="deleteBtn">🗑️ এন্ট্রি মুছুন</button>
+          </div>
+        </div>
+      </div>
+    `;
+    root.innerHTML = mainHtml;
+
+    document.getElementById("backHomeBtn")?.addEventListener("click", () => { currentAccount = null; currentDate = null; renderHome(); });
+    document.getElementById("logoutEntryBtn")?.addEventListener("click", () => { loggedInUser = null; renderAuth(); });
+    document.getElementById("addDateBtn")?.addEventListener("click", addNewDate);
+    document.getElementById("saveBtn")?.addEventListener("click", saveCurrentEntry);
+    document.getElementById("deleteBtn")?.addEventListener("click", deleteCurrentEntry);
+
+    // slider click events
+    setTimeout(() => {
+      document.querySelectorAll(".date-chip").forEach(chip => {
+        chip.addEventListener("click", (e) => {
+          const dateVal = chip.getAttribute("data-date");
+          if (dateVal && currentAccount.data[dateVal]) {
+            currentDate = dateVal;
+            updateFormAndSummary();
+            document.querySelectorAll(".date-chip").forEach(c => c.classList.remove("active"));
+            chip.classList.add("active");
+          } else if (dateVal && !currentAccount.data[dateVal]) {
+            alert("এন্ট্রি নেই, আগে নতুন তারিখ যোগ করুন");
+          }
+        });
+      });
+      if (currentDate && currentAccount.data[currentDate]) updateFormAndSummary();
+    }, 10);
+  }
+
+  function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+  // bootstrap
+  if (!localStorage.getItem(USERS_KEY)) localStorage.setItem(USERS_KEY, JSON.stringify([]));
+  renderAuth();
+</script>
+</body>
+</html>
